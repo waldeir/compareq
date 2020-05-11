@@ -24,7 +24,7 @@ while getopts ":ehrd:f:" opt; do
 			[ ! -d $DIRECTORY ] && echo $0: $DIRECTORY is not a directory && exit 1
 			;;
 		e)
-			EXTRA=1
+			EXTRA=True
 			;;
 			
 		:)
@@ -77,7 +77,7 @@ do
 	if [ ! -z "$MATCHED" ]
 	then
 
-	        if [ $EXTRA -eq 0 ]
+	        if [ ! $EXTRA = True ]
        	        then
 			# Print the relative path
 			echo -e ''
