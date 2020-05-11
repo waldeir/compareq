@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 helpFunc() {
 echo Usage: $0 [Options][-f directory] 
@@ -61,19 +61,22 @@ shift $((OPTIND-1))
 
 if [ $RECURSIVE = True ]; then
         # Gathering files and sha1sums in a variable
-	FILES_SHASUMS=$(find "$DIRECTORY" -type f   | xargs sha1sum )
+	FILES_SHASUMS=$(find "$DIRECTORY" -type f  -print0 | xargs -0 sha1sum )
 else
 	# Gathering files and sha1sums in a variable
-	FILES_SHASUMS=$(find "$DIRECTORY" -maxdepth $DEPTH -type f   | xargs sha1sum )
+	FILES_SHASUMS=$(find "$DIRECTORY" -maxdepth $DEPTH -type f  -print0  | xargs  -0 sha1sum )
 fi
 
-for i in $(echo "$FILES_SHASUMS"| cut -f3 -d' ')
+FILES=$(echo "$FILES_SHASUMS"| cut -f3- -d' ')
+
+#for i in $(echo "$FILES_SHASUMS"| cut -f3- -d' ')
+echo "$FILES" | while read i
 do
 	#Colons surrounding the variable make the shell correctly recognize carriage returns
-	MATCHED=$(echo "$FILES_SHASUMS"| fgrep $(sha1sum $i | cut -f1 -d' ') | grep -v $i |cut -f3 -d' ') 
+	MATCHED=$(echo "$FILES_SHASUMS"| fgrep $(sha1sum "$i" | cut -f1 -d' ') | grep -v "$i" | cut -f3- -d' ') 
 
 	#Delete already scanned files and update the database
-	FILES_SHASUMS=$(echo "$FILES_SHASUMS"| grep -v $i )
+	FILES_SHASUMS=$(echo "$FILES_SHASUMS"| grep -v "$i" )
 
 	if [ ! -z "$MATCHED" ]
 	then
@@ -82,12 +85,12 @@ do
        	        then
 			# Print the relative path
 			echo -e ''
-			realpath --relative-to=$(pwd) $i
+			realpath --relative-to=$(pwd) "$i"
        	        fi
 		for j in $MATCHED ; do
-		        realpath --relative-to=$(pwd) $j
+		        realpath --relative-to=$(pwd) "$j"
 			#Delete matched files from the database
-			FILES_SHASUMS=$(echo "$FILES_SHASUMS"| grep -v $j)
+			FILES_SHASUMS=$(echo "$FILES_SHASUMS"| grep -v "$j")
 		done
 		
 	fi
