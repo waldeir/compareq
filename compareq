@@ -50,7 +50,7 @@ FILES_SHASUMS=$(find $DIRECTORY -maxdepth 1 -type f   | xargs sha1sum )
 
 for i in $(echo "$FILES_SHASUMS"| cut -f3 -d' ')
 do
-	#Colons surrounding the variable make the shell regognize correctly carriage returns
+	#Colons surrounding the variable make the shell correctly recognize carriage returns
 	MATCHED=$(echo "$FILES_SHASUMS"| fgrep $(sha1sum $i | cut -f1 -d' ') | grep -v $i |cut -f3 -d' ') 
 
 	#Delete already scanned files and update the database
