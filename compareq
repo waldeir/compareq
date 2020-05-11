@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 helpFunc() {
-echo Usage: $0 [Options][-d directory] 
+echo Usage: $0 [Options][-f directory] 
 echo -e ''
 echo Search a directory for identical files, using their sha1sum.
 echo -e ''
 echo Options:
-echo '  -d              directory path'
+echo '  -f              folder path'
 echo '  -h, --help      print the help'
 echo '  -e              only print the extra copies of a file'
 echo -e ''
@@ -14,9 +14,9 @@ echo -e ''
 
 EXTRA=0
 DIRECTORY=.
-while getopts ":ehd:" opt; do
+while getopts ":ehf:" opt; do
 	case "${opt}" in
-		d)
+		f)
 			DIRECTORY=$OPTARG
 			[ ! -d $DIRECTORY ] && echo $0: $DIRECTORY is not a directory && exit 1
 			;;
@@ -62,8 +62,8 @@ do
 	        if [ $EXTRA -eq 0 ]
        	        then
 			# Print the relative path
-			relativeI=$(realpath --relative-to=$(pwd) $i)
-			echo The file $relativeI match with:
+			echo -e ''
+			realpath --relative-to=$(pwd) $i
        	        fi
 		for j in $MATCHED ; do
 		        realpath --relative-to=$(pwd) $j
