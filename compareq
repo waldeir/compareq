@@ -9,12 +9,14 @@ echo Options:
 echo '  -f              folder path'
 echo '  -h, --help      print the help'
 echo '  -e              only print the extra copies of a file'
+echo '  -d              the depth of the search'
 echo -e ''
 }
 
 EXTRA=0
 DIRECTORY=.
-while getopts ":ehf:" opt; do
+DEPTH=1
+while getopts ":ehd:f:" opt; do
 	case "${opt}" in
 		f)
 			DIRECTORY=$OPTARG
@@ -32,6 +34,14 @@ while getopts ":ehf:" opt; do
 			echo "Opção inválida: -$OPTARG" 1>&2
 			exit 4
 			;;
+		d)
+			DEPTH=$OPTARG
+			[ $OPTARG -gt 0 ]  2> /dev/null
+			if [ $? -ne 0 ]; then
+				 echo $0: Invalid argument $OPTARG for option d
+				 exit 2;
+			fi
+			;;
 		h)
 			helpFunc	
 			exit 0
@@ -46,7 +56,7 @@ shift $((OPTIND-1))
 
 #cd $DIRECTORY
 # Gathering files and sha1sums in a variable
-FILES_SHASUMS=$(find $DIRECTORY -maxdepth 1 -type f   | xargs sha1sum )
+FILES_SHASUMS=$(find $DIRECTORY -maxdepth $DEPTH -type f   | xargs sha1sum )
 
 for i in $(echo "$FILES_SHASUMS"| cut -f3 -d' ')
 do
