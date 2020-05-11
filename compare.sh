@@ -1,7 +1,52 @@
 #!/usr/bin/env bash
 
+helpFunc() {
+echo Usage: $0 [Options][-d directory] 
+echo -e ''
+echo Search a directory for identical files, using their sha1sum.
+echo -e ''
+echo Options:
+echo '  -d              directory path'
+echo '  -h, --help      print the help'
+echo '  -e              only print the extra copies of a file'
+echo -e ''
+}
+
+EXTRA=0
+DIRECTORY=.
+while getopts ":ehd:" opt; do
+	case "${opt}" in
+		d)
+			DIRECTORY=$OPTARG
+			[ ! -d $DIRECTORY ] && echo $0: $DIRECTORY is not a directory && exit 1
+			;;
+		e)
+			EXTRA=1
+			;;
+			
+		:)
+			echo "Opção inválida: -$OPTARG requer um argumento" 1>&2
+			exit 3
+			;;
+		\?)
+			echo "Opção inválida: -$OPTARG" 1>&2
+			exit 4
+			;;
+		h)
+			helpFunc	
+			exit 0
+			;;
+		*)
+			helpFunc
+			exit 5
+			;;
+	esac
+done
+shift $((OPTIND-1))
+
+#cd $DIRECTORY
 # Gathering files and sha1sums in a variable
-FILES_SHASUMS=$(ls| xargs sha1sum)
+FILES_SHASUMS=$(find $DIRECTORY -maxdepth 1 -type f   | xargs sha1sum )
 
 for i in $(echo "$FILES_SHASUMS"| cut -f3 -d' ')
 do
@@ -13,12 +58,19 @@ do
 
 	if [ ! -z "$MATCHED" ]
 	then
-		echo The file $i match with:
+
+	        if [ $EXTRA -eq 0 ]
+       	        then
+			# Print the relative path
+			relativeI=$(realpath --relative-to=$(pwd) $i)
+			echo The file $relativeI match with:
+       	        fi
 		for j in $MATCHED ; do
-			echo $j
+		        realpath --relative-to=$(pwd) $j
 			#Delete matched files from the database
 			FILES_SHASUMS=$(echo "$FILES_SHASUMS"| grep -v $j)
 		done
 		
 	fi
 done
+
