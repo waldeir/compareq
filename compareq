@@ -10,13 +10,14 @@ echo '  -f              folder path'
 echo '  -h, --help      print the help'
 echo '  -e              only print the extra copies of a file'
 echo '  -d              the depth of the search'
+echo '  -r              search recursively'
 echo -e ''
 }
-
-EXTRA=0
+EXTRA=False
+RECURSIVE=False
 DIRECTORY=.
 DEPTH=1
-while getopts ":ehd:f:" opt; do
+while getopts ":ehrd:f:" opt; do
 	case "${opt}" in
 		f)
 			DIRECTORY=$OPTARG
@@ -42,6 +43,9 @@ while getopts ":ehd:f:" opt; do
 				 exit 2;
 			fi
 			;;
+		r)
+			RECURSIVE=True
+			;;
 		h)
 			helpFunc	
 			exit 0
@@ -54,9 +58,13 @@ while getopts ":ehd:f:" opt; do
 done
 shift $((OPTIND-1))
 
-#cd $DIRECTORY
-# Gathering files and sha1sums in a variable
-FILES_SHASUMS=$(find $DIRECTORY -maxdepth $DEPTH -type f   | xargs sha1sum )
+if [ $RECURSIVE = True ]; then
+        # Gathering files and sha1sums in a variable
+	FILES_SHASUMS=$(find "$DIRECTORY" -type f   | xargs sha1sum )
+else
+	# Gathering files and sha1sums in a variable
+	FILES_SHASUMS=$(find "$DIRECTORY" -maxdepth $DEPTH -type f   | xargs sha1sum )
+fi
 
 for i in $(echo "$FILES_SHASUMS"| cut -f3 -d' ')
 do
