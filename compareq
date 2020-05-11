@@ -27,11 +27,11 @@ while getopts ":ehd:f:" opt; do
 			;;
 			
 		:)
-			echo "Opção inválida: -$OPTARG requer um argumento" 1>&2
+			echo "Invalid option: -$OPTARG requires an argument" 1>&2
 			exit 3
 			;;
 		\?)
-			echo "Opção inválida: -$OPTARG" 1>&2
+			echo "Invalid option: -$OPTARG" 1>&2
 			exit 4
 			;;
 		d)
